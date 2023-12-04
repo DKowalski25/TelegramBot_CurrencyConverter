@@ -21,9 +21,10 @@ class Config:
     ch_api: ChApi
 
 
-# Создаем функцию, которая будет читать файл .env и возвращать
-# экземпляр класса Config с заполненными полями token
+
 def load_config(path: str | None = None) -> Config:
+    """Создаем функцию, которая будет читать файл .env и возвращать"""
+    """экземпляр класса Config с заполненными полями token"""
     env = Env()
     env.read_env(path)
     return Config(

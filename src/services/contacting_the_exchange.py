@@ -1,17 +1,14 @@
-import requests
+import aiohttp
+import asyncio
 
-from ..config_data.config import Config, load_config
+from src.config_data.config import Config, load_config
 
-# Загружаем конфиг в переменную config
 config: Config = load_config()
 
-
-# Функция совершающая обмен курса
-def exenge_rate():
-    # URL API Fixer.io (Конечная точка последних ставок)
+async def exenge_rate_random():
+    """ Функция получения пары 1 EUR: что то рандомное"""
     url = 'http://data.fixer.io/api/latest'
 
-    # Параметры запроса
     params = {
         'access_key': config.ch_api.access_key,
         # 'base': 'RUB',  # Базовая валюта для конвертации
@@ -19,16 +16,16 @@ def exenge_rate():
     }
 
     try:
-        # Выполнение GET-запроса
-        response = requests.get(url, params=params)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, params=params) as response:
+                if response.status == 200:
+                    json_data = await response.json()
+                    inner_dict = json_data.get("rates")
 
-        # Проверка успешности запроса (200 OK)
-        if response.status_code == 200:
-            # Распечатка JSON-ответа
-            return response.json()
-        else:
-            # Вывод ошибки, если запрос не был успешен
-            return print('Ошибка 400')
-    except requests.exceptions.RequestException as e:
-        # Обработка ошибок связанных с сетью или запросом
+                    return inner_dict
+                else:
+                    return print(f'Ошибка {response.status}')
+    except aiohttp.ClientError as e:
         return print(f"Error: {e}")
+
+
