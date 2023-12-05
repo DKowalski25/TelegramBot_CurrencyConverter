@@ -5,8 +5,9 @@ from src.config_data.config import Config, load_config
 
 config: Config = load_config()
 
-async def exenge_rate_random():
-    """ Функция получения пары 1 EUR: что то рандомное"""
+
+async def exchange_rate_random():
+    """ Функция получения пары 1 EUR: что-то рандомное"""
     url = 'http://data.fixer.io/api/latest'
 
     params = {
@@ -27,5 +28,3 @@ async def exenge_rate_random():
                     return print(f'Ошибка {response.status}')
     except aiohttp.ClientError as e:
         return print(f"Error: {e}")
-
-
