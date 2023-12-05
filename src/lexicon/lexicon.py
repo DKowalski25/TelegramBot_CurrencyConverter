@@ -12,5 +12,7 @@ LEXICON: dict[str, str] = {
 
 LEXICON_COMMANDS: dict[str, str] = {
     'history': 'История запросов',
-    'favorite': 'Любимые валютные пары'
+    'favorite': 'Любимые валютные пары',
+    'exchange': 'Конвертация валюты',
+    'get_rate': 'Получение котировок'
 }

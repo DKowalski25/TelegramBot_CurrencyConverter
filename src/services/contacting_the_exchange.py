@@ -1,18 +1,17 @@
 import aiohttp
-import asyncio
 
 from src.config_data.config import Config, load_config
 
 config: Config = load_config()
 
 
-async def exchange_rate_random():
-    """ Функция получения пары 1 EUR: что-то рандомное"""
+async def get_rate():
+    """ Функция получения котировок EUR. """
     url = 'http://data.fixer.io/api/latest'
 
     params = {
         'access_key': config.ch_api.access_key,
-        # 'base': 'RUB',  # Базовая валюта для конвертации
+        'base': 'EUR',  # Базовая валюта для конвертации
         # 'symbols': 'GBP,JPY,EUR',  # Выходные валы
     }
 
@@ -28,3 +27,15 @@ async def exchange_rate_random():
                     return print(f'Ошибка {response.status}')
     except aiohttp.ClientError as e:
         return print(f"Error: {e}")
+
+
+async def currency_relations(currency: str, name: str) -> float:
+    rates = await get_rate()
+    rates_transformation = rates[name] / rates[currency]
+    return rates_transformation
+
+
+async def exchange_rate(amount: int, curr_1: str, curr_2: str):
+    right_pair = await currency_relations(curr_1, curr_2)
+    result = str(amount * right_pair)
+    return result

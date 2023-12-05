@@ -4,7 +4,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 storage = MemoryStorage()
 
 # Создаем "базу данных" пользователей
-user_answer: dict[int, float | int | str] = {}
+user_answer: dict[int, dict[str, float | int | str]] = {}
 
 
 class FSMexchangeform(StatesGroup):
