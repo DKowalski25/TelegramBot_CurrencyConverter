@@ -3,12 +3,13 @@ import random
 from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 
 from ..lexicon.lexicon import LEXICON
 from ..services.contacting_the_exchange import exchange_rate
 from ..fsm.fsm import default_state, user_answer, FSMexchangeform, fsm_exchange_form_state
 from ..filters.filters import InStatesFilter, CheckingLetterCode
+from ..keyboards.exchange_keyboard import create_exchange_keyboard
 
 router = Router()
 
@@ -72,13 +73,32 @@ async def process_third_answer_sent(message: Message, state: FSMContext):
     """ Правильный ответ на вопрос 3"""
     await state.update_data(tq=message.text)
     user_answer[message.from_user.id] = await state.get_data()
-    # await message.answer(text=f"fq = {user_answer[message.from_user.id]['fq']}\n"
-    #                           f"sq = {user_answer[message.from_user.id]['sq']}\n"
-    #                           f"tq = {user_answer[message.from_user.id]['tq']}\n")
     amount = int(user_answer[message.from_user.id]['fq'])
     cur1 = user_answer[message.from_user.id]['sq']
     cur2 = user_answer[message.from_user.id]['tq']
     ans = await (exchange_rate(amount, cur1, cur2))
-    await message.answer(text=f'{ans}')
-    # Завершаем машину состояний
+    await message.answer(text=f'{amount} {cur1} = {ans} {cur2}')
+    await state.update_data(summ=amount)
+    await message.answer(text='Хотите сделать еще один обмен?',
+                         reply_markup=create_exchange_keyboard())
+    await state.set_state(FSMexchangeform.fill_fourth_question)
+
+
+@router.callback_query(StateFilter(FSMexchangeform.fill_fourth_question),
+                       F.data.in_(['exchange_more']))
+async def process_yes_button_sent(callback: CallbackQuery, state: FSMContext):
+    """ Этот хендлер срабатывает нажатие кнопки YES. """
+    await callback.message.answer(text='\n\nВведите сумму желаемую к обмену\n\n')
+    # Ожидаем ответа на вопрос в корректном формате
+    user_answer[callback.from_user.id] = await state.get_data()
+    await state.clear()
+    await state.set_state(FSMexchangeform.fill_first_question)
+
+
+@router.callback_query(StateFilter(FSMexchangeform.fill_fourth_question),
+                       F.data.in_(['no_exchange']))
+async def process_no_button_sent(callback: CallbackQuery, state: FSMContext):
+    """ Этот хендлер срабатывает на нажатие кнопки NO. """
+    user_answer[callback.from_user.id] = await state.get_data()
+    await callback.message.answer(text='Приходи еще')
     await state.clear()

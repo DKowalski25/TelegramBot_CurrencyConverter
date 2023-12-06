@@ -1,11 +1,11 @@
-from abc import ABC
-
 from aiogram.filters import BaseFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
+CURRENCY_CODE_LEN = 3
 
-class InStatesFilter(BaseFilter, ABC):
+
+class InStatesFilter(BaseFilter):
     """Фильтр проверяет находиться ли FSM в одном из состояний 'fsm_exchange_form_state'. """
 
     def __init__(self, states: list[str]) -> None:
@@ -17,10 +17,10 @@ class InStatesFilter(BaseFilter, ABC):
         return state_name in self.states
 
 
-class CheckingLetterCode(BaseFilter, ABC):
+class CheckingLetterCode(BaseFilter):
     """Фильтр проверяет чтоб приходящие значение совпадает с принятым форматом
      обозначения валют. """
 
     async def __call__(self, message: Message) -> bool:
         data = message.text
-        return data.isalpha() and data.isupper and len(data) == 3
+        return data.isalpha() and data.isupper and len(data) == CURRENCY_CODE_LEN
