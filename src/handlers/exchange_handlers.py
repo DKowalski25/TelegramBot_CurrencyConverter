@@ -1,4 +1,4 @@
-import random
+import json
 
 from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
@@ -7,9 +7,10 @@ from aiogram.types import Message, CallbackQuery
 
 from ..lexicon.lexicon import LEXICON
 from ..services.contacting_the_exchange import exchange_rate
-from ..fsm.fsm import default_state, user_answer, FSMexchangeform, fsm_exchange_form_state
+from ..fsm.fsm import FSMexchangeform, fsm_exchange_form_state
 from ..filters.filters import InStatesFilter, CheckingLetterCode
 from ..keyboards.exchange_keyboard import create_exchange_keyboard
+from ..database.redis import user_answer, storage, r
 
 router = Router()
 
@@ -78,7 +79,7 @@ async def process_third_answer_sent(message: Message, state: FSMContext):
     cur2 = user_answer[message.from_user.id]['tq']
     ans = await (exchange_rate(amount, cur1, cur2))
     await message.answer(text=f'{amount} {cur1} = {ans} {cur2}')
-    await state.update_data(summ=amount)
+    await state.update_data(summ=ans)
     await message.answer(text='Хотите сделать еще один обмен?',
                          reply_markup=create_exchange_keyboard())
     await state.set_state(FSMexchangeform.fill_fourth_question)
@@ -91,6 +92,8 @@ async def process_yes_button_sent(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer(text='\n\nВведите сумму желаемую к обмену\n\n')
     # Ожидаем ответа на вопрос в корректном формате
     user_answer[callback.from_user.id] = await state.get_data()
+    json_user_answer = json.dumps(user_answer)
+    await r.set(callback.from_user.id, json_user_answer)
     await state.clear()
     await state.set_state(FSMexchangeform.fill_first_question)
 
@@ -101,4 +104,6 @@ async def process_no_button_sent(callback: CallbackQuery, state: FSMContext):
     """ Этот хендлер срабатывает на нажатие кнопки NO. """
     user_answer[callback.from_user.id] = await state.get_data()
     await callback.message.answer(text='Приходи еще')
+    json_user_answer = json.dumps(user_answer)
+    await r.set(callback.from_user.id, json_user_answer)
     await state.clear()
