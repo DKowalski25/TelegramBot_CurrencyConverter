@@ -7,6 +7,7 @@ from aiogram.types import Message, CallbackQuery
 
 from ..lexicon.lexicon import LEXICON
 from ..services.contacting_the_exchange import exchange_rate
+from ..services.user_db_check import check_user_in_db
 from ..fsm.fsm import FSMexchangeform, fsm_exchange_form_state
 from ..filters.filters import InStatesFilter, CheckingLetterCode
 from ..keyboards.exchange_keyboard import create_exchange_keyboard
@@ -20,6 +21,9 @@ async def process_exchange_command(message: Message, state: FSMContext):
     """ Этот хендлер будет срабатывать на команду '/exchange'
         менять машинное состояния с 'default_state' на 'fill_first_question'
         и будет задавать первый вопрос. """
+    user_id = message.from_user.id
+    if user_id not in user_answer:
+        user_answer[user_id] = {}
     await message.answer(text='\n\nВведите сумму желаемую к обмену\n\n')
     # Ожидаем ответа на вопрос в корректном формате
     await state.set_state(FSMexchangeform.fill_first_question)
@@ -73,13 +77,27 @@ async def warring_not_currency_code(message: Message):
 async def process_third_answer_sent(message: Message, state: FSMContext):
     """ Правильный ответ на вопрос 3"""
     await state.update_data(tq=message.text)
-    user_answer[message.from_user.id] = await state.get_data()
-    amount = int(user_answer[message.from_user.id]['fq'])
-    cur1 = user_answer[message.from_user.id]['sq']
-    cur2 = user_answer[message.from_user.id]['tq']
+
+    user_id = message.from_user.id
+    user_data = await state.get_data()
+
+    # Получаем текущий номер пользователя и увеличиваем его на 1
+    current_number = len(user_answer[user_id]) + 1
+
+    # Сохраняем данные пользователя с использованием текущего номера
+    user_answer[user_id][current_number] = user_data
+
+    amount = int(user_data['fq'])
+    cur1 = user_data['sq']
+    cur2 = user_data['tq']
+
     ans = await (exchange_rate(amount, cur1, cur2))
+
     await message.answer(text=f'{amount} {cur1} = {ans} {cur2}')
     await state.update_data(summ=ans)
+
+    user_answer[user_id][current_number] = await state.get_data()
+
     await message.answer(text='Хотите сделать еще один обмен?',
                          reply_markup=create_exchange_keyboard())
     await state.set_state(FSMexchangeform.fill_fourth_question)
@@ -90,9 +108,9 @@ async def process_third_answer_sent(message: Message, state: FSMContext):
 async def process_yes_button_sent(callback: CallbackQuery, state: FSMContext):
     """ Этот хендлер срабатывает нажатие кнопки YES. """
     await callback.message.answer(text='\n\nВведите сумму желаемую к обмену\n\n')
-    # Ожидаем ответа на вопрос в корректном формате
-    user_answer[callback.from_user.id] = await state.get_data()
+
     json_user_answer = json.dumps(user_answer)
+
     await r.set(callback.from_user.id, json_user_answer)
     await state.clear()
     await state.set_state(FSMexchangeform.fill_first_question)
@@ -102,7 +120,6 @@ async def process_yes_button_sent(callback: CallbackQuery, state: FSMContext):
                        F.data.in_(['no_exchange']))
 async def process_no_button_sent(callback: CallbackQuery, state: FSMContext):
     """ Этот хендлер срабатывает на нажатие кнопки NO. """
-    user_answer[callback.from_user.id] = await state.get_data()
     await callback.message.answer(text='Приходи еще')
     json_user_answer = json.dumps(user_answer)
     await r.set(callback.from_user.id, json_user_answer)

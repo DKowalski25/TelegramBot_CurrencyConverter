@@ -31,4 +31,29 @@ async def process_history_command(message: Message):
         истории обмена"""
     data = await r.get(message.from_user.id)
     retrieved_dict = json.loads(data)
+
     await message.answer(text=f'{retrieved_dict}')
+
+    def normalization_answer(ua: dict):
+        result_str_list = []
+        for outer_key, inner_dict in ua.items():
+            for inner_key, inner_values in inner_dict.items():
+                fq = inner_values['fq']
+                sq = inner_values['sq']
+                tq = inner_values['tq']
+                summ = inner_values['summ']
+
+                result_str = f"{inner_key}: {fq} {sq} to {tq} = {summ}"
+                result_str_list.append(result_str)
+        return '\n'.join(result_str_list)
+    await message.answer(text=f'{normalization_answer(retrieved_dict)}')
+
+
+
+    #
+    # async def print_inner_dict(inner_dict):
+    #     """ Функция для вывода ключей и значений внутреннего словаря. """
+    #     for key, value in inner_dict.items():
+    #         await message.answer(text=f'   {key}: {value}')
+    #
+    # await print_inner_dict(desired_inner_dict)
