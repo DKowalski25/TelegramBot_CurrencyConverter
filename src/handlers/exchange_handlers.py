@@ -5,13 +5,11 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from ..lexicon.lexicon import LEXICON
 from ..services.contacting_the_exchange import exchange_rate
-from ..services.user_db_check import check_user_in_db
-from ..fsm.fsm import FSMexchangeform, fsm_exchange_form_state
-from ..filters.filters import InStatesFilter, CheckingLetterCode
+from src.utils.fsm.fsm import FSMexchangeform, fsm_exchange_form_state
+from src.utils.filters import InStatesFilter, CheckingLetterCode
 from ..keyboards.exchange_keyboard import create_exchange_keyboard
-from ..database.redis import user_answer, storage, r
+from ..database.redis import user_answer, r
 
 router = Router()
 

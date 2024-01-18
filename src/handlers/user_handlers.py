@@ -29,24 +29,24 @@ async def process_history_command(message: Message):
     """ Этот хендлер будет срабатывать на команду '/history'.
         И отправлять пользователю сообщение со списком
         истории обмена"""
-    data = await r.get(message.from_user.id)
+    data = await r.get(str(message.from_user.id))
     retrieved_dict = json.loads(data)
-
+    user_id = message.from_user.id
     await message.answer(text=f'{retrieved_dict}')
 
-    def normalization_answer(ua: dict):
-        result_str_list = []
-        for outer_key, inner_dict in ua.items():
-            for inner_key, inner_values in inner_dict.items():
-                fq = inner_values['fq']
-                sq = inner_values['sq']
-                tq = inner_values['tq']
-                summ = inner_values['summ']
-
-                result_str = f"{inner_key}: {fq} {sq} to {tq} = {summ}"
-                result_str_list.append(result_str)
-        return '\n'.join(result_str_list)
-    await message.answer(text=f'{normalization_answer(retrieved_dict)}')
+    # def normalization_answer(ua: dict):
+    #     result_str_list = []
+    #     for outer_key, inner_dict in ua.items():
+    #         for inner_key, inner_values in inner_dict.items():
+    #             fq = inner_values['fq']
+    #             sq = inner_values['sq']
+    #             tq = inner_values['tq']
+    #             summ = inner_values['summ']
+    #
+    #             result_str = f"{inner_key}: {fq} {sq} to {tq} = {summ}"
+    #             result_str_list.append(result_str)
+    #     return '\n'.join(result_str_list)
+    # await message.answer(text=f'{normalization_answer(data)}')
 
 
 

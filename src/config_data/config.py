@@ -15,6 +15,15 @@ class ChApi:
     access_key: str  # Ключ API
 
 
+# @dataclass()
+# class PostgresConect:
+#     username: str
+#     host: str
+#     password: str
+#     database: str
+#     port: str
+
+
 @dataclass
 class Config:
     tg_bot: TgBot
