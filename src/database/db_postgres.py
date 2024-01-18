@@ -1,5 +1,6 @@
-import os
 from typing import Union
+
+from ..utils import config
 
 from sqlalchemy import MetaData
 from sqlalchemy.engine import URL
@@ -8,11 +9,11 @@ from sqlalchemy.orm import sessionmaker
 
 postgres_url = URL.create(
         "postgresql+asyncpg",
-        username=os.getenv('db_user'),
-        host='localhost',
-        password=os.getenv('db_pass'),
-        database=os.getenv('db_name'),
-        port=os.getenv('db_port')
+        username=config.USERNAME_DB,
+        host=config.HOST_DB,
+        password=config.PASSWORD_DB,
+        database=config.DATABASE_NAME,
+        port=int(config.PORT_DB)
     )
 
 
