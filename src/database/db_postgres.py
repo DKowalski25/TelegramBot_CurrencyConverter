@@ -1,6 +1,6 @@
 from typing import Union
 
-from ..utils import config
+from src.utils import config
 
 from sqlalchemy import MetaData
 from sqlalchemy.engine import URL

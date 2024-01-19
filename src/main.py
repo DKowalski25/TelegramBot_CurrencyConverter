@@ -3,8 +3,8 @@ import logging
 
 from aiogram import Bot, Dispatcher
 
-from config_data.config import Config, load_config
 from database.redis import storage
+from utils import config
 
 from .handlers import user_handlers, exchange_handlers
 from .keyboards.main_menu import set_main_menu
@@ -26,12 +26,10 @@ async def main():
     # Выводим в консоль информацию о начале запуска бота
     logger.info('Starting Bot')
 
-    # Загружаем конфиг в переменную config
-    config: Config = load_config()
 
     # Инициализируем бот и диспетчер
-    bot = Bot(token=config.tg_bot.token, parse_mode='HTML')
-    dp = Dispatcher(storage=storage)
+    bot = Bot(token=config.BOT_TOKEN, parse_mode='HTML')
+    dp = Dispatcher()
 
     # Настраиваем главное меню бота
     await set_main_menu(bot)

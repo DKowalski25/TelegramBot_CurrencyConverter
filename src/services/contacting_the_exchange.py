@@ -1,16 +1,16 @@
 import aiohttp
 
-from src.config_data.config import Config, load_config
-
-config: Config = load_config()
-
+# from src.config_data.config import Config, load_config
+#
+# config: Config = load_config()
+from ..utils import config
 
 async def get_rate():
     """ Функция получения котировок EUR. """
     url = 'http://data.fixer.io/api/latest'
 
     params = {
-        'access_key': config.ch_api.access_key,
+        'access_key': config.CHANGER_API_KEY,
         'base': 'EUR',  # Базовая валюта для конвертации
         # 'symbols': 'GBP,JPY,EUR',  # Выходные валы
     }

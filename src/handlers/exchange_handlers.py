@@ -7,7 +7,7 @@ from aiogram.types import Message, CallbackQuery
 
 from ..services.contacting_the_exchange import exchange_rate
 from src.utils.fsm.fsm import FSMexchangeform, fsm_exchange_form_state
-from src.utils.filters import InStatesFilter, CheckingLetterCode
+from src.utils.filters.filters import InStatesFilter, CheckingLetterCode
 from ..keyboards.exchange_keyboard import create_exchange_keyboard
 from ..database.redis import user_answer, r
 

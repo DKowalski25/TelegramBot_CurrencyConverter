@@ -22,7 +22,7 @@ def get_env_var(var_name: str) -> str:
 
 
 BOT_TOKEN: Final[str] = get_env_var("BOT_TOKEN")
-CHANGER_API_KEY: Final[str] = get_env_var("СHANGER_API_KEY")
+CHANGER_API_KEY: Final[str] = get_env_var("CHANGER_API_KEY")
 USERNAME_DB: Final[str] = get_env_var("USERNAME_DB")
 HOST_DB: Final[str] = get_env_var("HOST_DB")
 PASSWORD_DB: Final[str] = get_env_var("PASSWORD_DB")
