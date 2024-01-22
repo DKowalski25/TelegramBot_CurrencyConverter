@@ -21,7 +21,10 @@ annotated-types==0.6.0
 async-timeout==4.0.3
     # via
     #   aioredis
+    #   asyncpg
     #   redis
+asyncpg==0.29.0
+    # via -r requirements.in
 attrs==23.1.0
     # via aiohttp
 certifi==2023.11.17
@@ -36,6 +39,8 @@ frozenlist==1.4.0
     # via
     #   aiohttp
     #   aiosignal
+greenlet==3.0.3
+    # via -r requirements.in
 idna==3.6
     # via
     #   requests

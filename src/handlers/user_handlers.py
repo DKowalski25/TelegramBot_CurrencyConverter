@@ -1,19 +1,26 @@
+import os
 import json
 
 from aiogram import Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message
+from sqlalchemy.orm import sessionmaker
 
 from ..lexicon.lexicon import LEXICON
-from ..database.redis import user_answer, r
+from ..database.redis import user_answer
+from ..database import register_new_user, storage
 
 router = Router()
 
 
 @router.message(CommandStart())
-async def process_start_command(message: Message):
+async def process_start_command(message: Message, session_maker: sessionmaker):
     """ Этот хендлер будет срабатывать на команду '/start'
         Отправлять пользователю приветственное сообщение. """
+    user_id = message.from_user.id
+    user_name = message.from_user.username
+
+    await register_new_user(user_id, user_name, session_maker=session_maker)
     await message.answer(text=LEXICON[message.text])
 
 
@@ -24,15 +31,15 @@ async def process_help_command(message: Message):
     await message.answer(text=LEXICON[message.text])
 
 
-@router.message(Command(commands='history'))
-async def process_history_command(message: Message):
-    """ Этот хендлер будет срабатывать на команду '/history'.
-        И отправлять пользователю сообщение со списком
-        истории обмена"""
-    data = await r.get(str(message.from_user.id))
-    retrieved_dict = json.loads(data)
-    user_id = message.from_user.id
-    await message.answer(text=f'{retrieved_dict}')
+# @router.message(Command(commands='history'))
+# async def process_history_command(message: Message):
+#     """ Этот хендлер будет срабатывать на команду '/history'.
+#         И отправлять пользователю сообщение со списком
+#         истории обмена"""
+#     data = await r.get(str(message.from_user.id))
+#     retrieved_dict = json.loads(data)
+#     user_id = message.from_user.id
+#     await message.answer(text=f'{retrieved_dict}')
 
     # def normalization_answer(ua: dict):
     #     result_str_list = []

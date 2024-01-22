@@ -9,7 +9,7 @@ from ..services.contacting_the_exchange import exchange_rate
 from src.utils.fsm.fsm import FSMexchangeform, fsm_exchange_form_state
 from src.utils.filters.filters import InStatesFilter, CheckingLetterCode
 from ..keyboards.exchange_keyboard import create_exchange_keyboard
-from ..database.redis import user_answer, r
+from ..database.redis import user_answer, redis
 
 router = Router()
 
@@ -109,7 +109,7 @@ async def process_yes_button_sent(callback: CallbackQuery, state: FSMContext):
 
     json_user_answer = json.dumps(user_answer)
 
-    await r.set(callback.from_user.id, json_user_answer)
+    await redis.set(callback.from_user.id, json_user_answer)
     await state.clear()
     await state.set_state(FSMexchangeform.fill_first_question)
 
@@ -120,5 +120,5 @@ async def process_no_button_sent(callback: CallbackQuery, state: FSMContext):
     """ Этот хендлер срабатывает на нажатие кнопки NO. """
     await callback.message.answer(text='Приходи еще')
     json_user_answer = json.dumps(user_answer)
-    await r.set(callback.from_user.id, json_user_answer)
+    await redis.set(callback.from_user.id, json_user_answer)
     await state.clear()

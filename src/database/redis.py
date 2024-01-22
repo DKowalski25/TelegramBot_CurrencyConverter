@@ -2,9 +2,12 @@ from collections import defaultdict
 
 from aiogram.fsm.storage.redis import RedisStorage, Redis
 
-r = Redis(host='redis-17083.c302.asia-northeast1-1.gce.cloud.redislabs.com', port=17083, decode_responses=True)
+redis = Redis(host='localhost',
+              port=6379,
+              db=0,
+              decode_responses=True)
 
-storage = RedisStorage(redis=r)
+storage = RedisStorage(redis=redis)
 
 
 # Создаем "базу данных" пользователей
