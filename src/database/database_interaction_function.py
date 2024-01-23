@@ -12,4 +12,4 @@ async def register_new_user(user_id: int, user_name: str, session_maker: session
                 user_name=user_name
             )
             session.add(new_user)
-    
+
