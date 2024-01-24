@@ -1,6 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 
-from src.database import User, ExchangeHistory
+from .Tables.user import User, ExchangeHistory
 
 
 async def register_new_user(user_id: int, user_name: str, session_maker: sessionmaker):
@@ -13,11 +13,12 @@ async def register_new_user(user_id: int, user_name: str, session_maker: session
             session.add(new_user)
 
 
-async def add_exchange_history(exchange_amount: float | int, currency_1: str,
+async def add_exchange_history(count_cur1: float, exchange_amount: float, currency_1: str,
                                currency_2: str, user_id_fk: int, session_maker: sessionmaker):
     async with session_maker() as session:
         async with session.begin():
             new_history_entry = ExchangeHistory(
+                count_currency1=count_cur1,
                 exchange_amount=exchange_amount,
                 currency_1=currency_1,
                 currency_2=currency_2,

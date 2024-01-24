@@ -37,7 +37,7 @@ async def currency_relations(currency: str, name: str) -> float:
 
 async def exchange_rate(amount: int, curr_1: str, curr_2: str):
     right_pair = await currency_relations(curr_1, curr_2)
-    result = str(amount * right_pair)
+    result = (amount * right_pair)
     return result
 
 

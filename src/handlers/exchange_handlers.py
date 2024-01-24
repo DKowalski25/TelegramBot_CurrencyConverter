@@ -5,6 +5,10 @@ from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
+from sqlalchemy.orm import sessionmaker
+
+from src.database import add_exchange_history
+
 from ..services.contacting_the_exchange import exchange_rate
 from src.utils.fsm.fsm import FSMexchangeform, fsm_exchange_form_state
 from src.utils.filters.filters import InStatesFilter, CheckingLetterCode
@@ -72,7 +76,7 @@ async def warring_not_currency_code(message: Message):
 
 
 @router.message(StateFilter(FSMexchangeform.fill_third_question), F.text.isdigit)
-async def process_third_answer_sent(message: Message, state: FSMContext):
+async def process_third_answer_sent(message: Message, state: FSMContext, session_maker: sessionmaker):
     """ Правильный ответ на вопрос 3"""
     await state.update_data(tq=message.text)
 
@@ -80,21 +84,25 @@ async def process_third_answer_sent(message: Message, state: FSMContext):
     user_data = await state.get_data()
 
     # Получаем текущий номер пользователя и увеличиваем его на 1
-    current_number = len(user_answer[user_id]) + 1
+    # current_number = len(user_answer[user_id]) + 1
 
     # Сохраняем данные пользователя с использованием текущего номера
-    user_answer[user_id][current_number] = user_data
+    # user_answer[user_id][current_number] = user_data
 
-    amount = int(user_data['fq'])
-    cur1 = user_data['sq']
-    cur2 = user_data['tq']
+    amount: int = int(user_data['fq'])
+    cur1: str = user_data['sq']
+    cur2: str = user_data['tq']
 
+    # получаем курс обмена
     ans = await (exchange_rate(amount, cur1, cur2))
 
     await message.answer(text=f'{amount} {cur1} = {ans} {cur2}')
-    await state.update_data(summ=ans)
+    # await state.update_data(summ=ans)
 
-    user_answer[user_id][current_number] = await state.get_data()
+    # user_answer[user_id][current_number] = await state.get_data()
+
+    # Сохраняем ответы пользователя в историю
+    await add_exchange_history(amount, ans, cur1, cur2, user_id, session_maker=session_maker)
 
     await message.answer(text='Хотите сделать еще один обмен?',
                          reply_markup=create_exchange_keyboard())
@@ -107,9 +115,9 @@ async def process_yes_button_sent(callback: CallbackQuery, state: FSMContext):
     """ Этот хендлер срабатывает нажатие кнопки YES. """
     await callback.message.answer(text='\n\nВведите сумму желаемую к обмену\n\n')
 
-    json_user_answer = json.dumps(user_answer)
+    # json_user_answer = json.dumps(user_answer)
 
-    await redis.set(callback.from_user.id, json_user_answer)
+    # await redis.set(callback.from_user.id, json_user_answer)
     await state.clear()
     await state.set_state(FSMexchangeform.fill_first_question)
 
@@ -119,6 +127,6 @@ async def process_yes_button_sent(callback: CallbackQuery, state: FSMContext):
 async def process_no_button_sent(callback: CallbackQuery, state: FSMContext):
     """ Этот хендлер срабатывает на нажатие кнопки NO. """
     await callback.message.answer(text='Приходи еще')
-    json_user_answer = json.dumps(user_answer)
-    await redis.set(callback.from_user.id, json_user_answer)
+    # json_user_answer = json.dumps(user_answer)
+    # await redis.set(callback.from_user.id, json_user_answer)
     await state.clear()
