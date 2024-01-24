@@ -1,22 +1,22 @@
-import os
-import json
-
 from aiogram import Router
 from aiogram.filters import Command, CommandStart
 from aiogram.types import Message
+
 from sqlalchemy.orm import sessionmaker
 
-from ..lexicon.lexicon import LEXICON
-from ..database.redis import user_answer
-from ..database import register_new_user, storage
+from src.lexicon import LEXICON
+from src.database import register_new_user
 
 router = Router()
 
 
 @router.message(CommandStart())
 async def process_start_command(message: Message, session_maker: sessionmaker):
-    """ Этот хендлер будет срабатывать на команду '/start'
-        Отправлять пользователю приветственное сообщение. """
+    """
+    This handler will be triggered by the command '/start'
+    Send a welcome message to the user.
+    """
+
     user_id = message.from_user.id
     user_name = message.from_user.username
 
@@ -26,8 +26,11 @@ async def process_start_command(message: Message, session_maker: sessionmaker):
 
 @router.message(Command(commands='help'))
 async def process_help_command(message: Message):
-    """ Этот хэндлер будет срабатывать на команду '/help'
-        и отправлять пользователю сообщение со списком доступных команд в боте. """
+    """
+    This handler will be triggered by the command '/help'
+    and send a message to the user with a list of available commands in the bot.
+    """
+
     await message.answer(text=LEXICON[message.text])
 
 

@@ -2,7 +2,8 @@ from aiogram.fsm.state import default_state, StatesGroup, State
 
 
 class FSMexchangeform(StatesGroup):
-    """ Класс, используемый для управления FSM внутри команды '/exchange'."""
+    """The class used to manage the FSM inside the '/exchange' command."""
+
     fill_first_question = State()
     fill_second_question = State()
     fill_third_question = State()

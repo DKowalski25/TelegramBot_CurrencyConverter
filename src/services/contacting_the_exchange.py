@@ -1,18 +1,17 @@
 import aiohttp
 
-# from src.config_data.config import Config, load_config
-#
-# config: Config = load_config()
 from ..utils import config
 
+
 async def get_rate():
-    """ Функция получения котировок EUR. """
+    """The function of getting EUR quotes."""
+
     url = 'http://data.fixer.io/api/latest'
 
     params = {
         'access_key': config.CHANGER_API_KEY,
-        'base': 'EUR',  # Базовая валюта для конвертации
-        # 'symbols': 'GBP,JPY,EUR',  # Выходные валы
+        'base': 'EUR',  # The base currency for conversion
+        # 'symbols': 'GBP,JPY,EUR',  # Output currencies
     }
 
     try:
@@ -30,12 +29,16 @@ async def get_rate():
 
 
 async def currency_relations(currency: str, name: str) -> float:
+    """The function finds currency relations."""
+
     rates = await get_rate()
     rates_transformation = rates[name] / rates[currency]
     return rates_transformation
 
 
 async def exchange_rate(amount: int, curr_1: str, curr_2: str):
+    """The function receives the requested exchange rate."""
+
     right_pair = await currency_relations(curr_1, curr_2)
     result = (amount * right_pair)
     return result

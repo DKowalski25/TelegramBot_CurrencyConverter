@@ -29,17 +29,15 @@ def create_engine(url: Union[URL, str]) -> AsyncEngine:
 
 
 async def proceed_schemas(engine: AsyncEngine, metadata: MetaData) -> None:
-    """
+    """The function updates the schemas in the database."""
 
-    :param engine:
-    :param metadata:
-    """
     async with engine.begin() as conn:
         await conn.run_sync(BaseModel.metadata.create_all)
 
 
 def get_session_maker(engine: AsyncEngine) -> sessionmaker[AsyncSession]:
     """The function creates a sessionmaker."""
+
     return sessionmaker(engine, class_=AsyncSession)
 
 

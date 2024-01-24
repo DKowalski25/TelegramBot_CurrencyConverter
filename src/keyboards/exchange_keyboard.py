@@ -1,9 +1,10 @@
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, KeyboardButton, ReplyKeyboardMarkup
-from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
+from aiogram.types import InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 
 def create_exchange_keyboard():
-    """Функция генерирующая клавиатуру внутри команды '/exchange'. """
+    """The function generates a keyboard inside the '/exchange' command."""
+
     yes_no_builder = InlineKeyboardBuilder()
     yes_button = InlineKeyboardButton(text='YES',
                                       callback_data='exchange_more')
