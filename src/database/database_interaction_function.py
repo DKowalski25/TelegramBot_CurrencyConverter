@@ -1,4 +1,5 @@
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import select
+from sqlalchemy.orm import sessionmaker, Session
 
 from src.database.tables import User, ExchangeHistory
 
@@ -30,3 +31,25 @@ async def add_exchange_history(count_cur1: float, exchange_amount: float, curren
             )
             session.add(new_history_entry)
 
+
+async def get_exchange_history(user_id: int, session_maker: sessionmaker) -> list[ExchangeHistory]:
+    """Get exchange history by user id."""
+
+    async with session_maker() as session:
+        history_entries = await session.execute(
+                select(ExchangeHistory).join(User).filter(User.user_id == user_id)
+            )
+        return history_entries.scalars().all()
+
+
+async def format_exchange_history(history_entries: list[ExchangeHistory]) -> str:
+    """
+    The function converts the dictionary received in "get_exchange_history"
+    into a string representing the exchange history.
+    """
+    formatted_history = "История:\n"
+    for entry in history_entries:
+        formatted_entry = f"{entry.exchange_id}. {entry.count_currency1} {entry.currency_1} to {entry.currency_2}" \
+                          f" - {entry.exchange_amount}"
+        formatted_history += formatted_entry + "\n\n"
+    return formatted_history

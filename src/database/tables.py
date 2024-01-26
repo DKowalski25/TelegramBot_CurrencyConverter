@@ -17,9 +17,9 @@ class User(BaseModel):
     # Telegram user name
     user_name: Mapped[str] = mapped_column(nullable=False)
     # Registration date
-    reg_date: Mapped[int] = mapped_column(DATE, default=datetime.date.today())
+    reg_date: Mapped[datetime.datetime] = mapped_column(DATE, default=datetime.date.today())
     # Last update date
-    upd_date: Mapped[int] = mapped_column(DATE, onupdate=datetime.date.today())
+    upd_date: Mapped[datetime.datetime] = mapped_column(DATE, onupdate=datetime.date.today())
     #
     exchange_histories: Mapped[list['ExchangeHistory']] = relationship(back_populates='users', uselist=True)
 
@@ -38,3 +38,7 @@ class ExchangeHistory(BaseModel):
     currency_2: Mapped[str] = mapped_column(nullable=False)
     users: Mapped['User'] = relationship(back_populates='exchange_histories', uselist=False)
     user_id_fk: Mapped[int] = mapped_column(ForeignKey('users.user_id'))
+
+    def __str__(self) -> str:
+        return f"ID: {self.exchange_id}, Amount: {self.exchange_amount}," \
+               f" Currency 1: {self.currency_1}, Currency 2: {self.currency_2}"
